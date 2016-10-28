@@ -28,7 +28,7 @@
 #ifdef _WIN32
 #include <winsock.h> // SOCKET
 #endif // _WIN32
-#include <mysql.h> // MySQL Client
+#include <mysql/mysql.h> // MySQL Client
 #include <vector>
 
 
