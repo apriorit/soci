@@ -289,7 +289,7 @@ mysql_session_backend::mysql_session_backend(
 {
     string host, user, password, db, unix_socket, ssl_ca, ssl_cert, ssl_key,
         charset;
-    int port, local_infile;
+    int port = 0, local_infile = 0;
     bool host_p, user_p, password_p, db_p, unix_socket_p, port_p,
         ssl_ca_p, ssl_cert_p, ssl_key_p, local_infile_p, charset_p;
     parse_connect_string(parameters.get_connect_string(), &host, &host_p, &user, &user_p,
