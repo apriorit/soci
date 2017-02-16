@@ -7,6 +7,34 @@ using namespace soci;
 using namespace soci::tests;
 
 // DDL Creation objects for common tests
+struct db_creator
+{
+    db_creator(backend_factory const &backEnd, std::string const& connectString)
+    {
+        std::string newConnectString = connectString;
+        const std::string db = "db=";
+        size_t start = newConnectString.find(db);
+        if (start == std::string::npos)
+        {
+            return;
+        }
+        size_t end = newConnectString.find(start, ' ');
+        std::string dbValue;
+        size_t len = std::string::npos;
+        if (end != std::string::npos)
+        {
+            len = end - start;
+        }
+        dbValue = newConnectString.substr(start + db.size(),
+                                         (len != std::string::npos) ? len - db.size() : std::string::npos);
+        newConnectString.erase(start, len);
+
+        connection_parameters params(backEnd, newConnectString);
+        soci::session sql(params);
+        sql << "create database if not exists " << dbValue;
+    }
+};
+
 struct table_creator_one : public table_creator_base
 {
     table_creator_one(soci::session & sql)
@@ -58,7 +86,10 @@ class test_context : public test_context_base
 public:
     test_context(backend_factory const &backEnd,
                 std::string const &connectString)
-        : test_context_base(backEnd, connectString) {}
+        : test_context_base(backEnd, connectString)
+    {
+        db_creator creator(backEnd, connectString);
+    }
 
     table_creator_base* table_creator_1(soci::session& s) const
     {

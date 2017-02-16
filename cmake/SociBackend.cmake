@@ -325,7 +325,9 @@ macro(soci_backend_test)
        colormsg(RED "Some dependencies of ${THIS_TEST_BACKEND} test not found")
     endif()
 
-    set(TEST_CONNSTR_VAR ${TEST_FULL_NAME}_CONNSTR)
+    if (NOT DEFINED TEST_CONNSTR_VAR)
+        set(TEST_CONNSTR_VAR ${TEST_FULL_NAME}_CONNSTR)
+    endif()
     set(${TEST_CONNSTR_VAR} ""
       CACHE STRING "Connection string for ${BACKENDU} test")
 
