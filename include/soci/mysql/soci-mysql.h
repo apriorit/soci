@@ -249,6 +249,10 @@ struct mysql_session_backend : details::session_backend
     virtual mysql_rowid_backend * make_rowid_backend();
     virtual mysql_blob_backend * make_blob_backend();
 
+private:
+    void add_and_check_option(enum mysql_option opt, const void *arg);
+
+public:
     MYSQL *conn_;
 };
 

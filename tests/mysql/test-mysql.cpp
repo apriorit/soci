@@ -297,7 +297,7 @@ void test_num(const char* s, bool valid, T value)
         {
             char const * expectedPrefix = "Cannot convert data";
             CAPTURE(e.what());
-            CHECK(strncmp(e.what(), expectedPrefix, strlen(expectedPrefix)) == 0);
+            CHECK(!strncmp(e.what(), expectedPrefix, strlen(expectedPrefix)));
         }
     }
 }

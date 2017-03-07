@@ -157,7 +157,8 @@ void parse_connect_string(const string & connectString,
     int *port, bool *port_p, string *ssl_ca, bool *ssl_ca_p,
     string *ssl_cert, bool *ssl_cert_p, string *ssl_key, bool *ssl_key_p,
     int *local_infile, bool *local_infile_p,
-    string *charset, bool *charset_p)
+    string *charset, bool *charset_p,
+    int *timeout, bool *timeout_p)
 {
     *host_p = false;
     *user_p = false;
@@ -170,6 +171,7 @@ void parse_connect_string(const string & connectString,
     *ssl_key_p = false;
     *local_infile_p = false;
     *charset_p = false;
+    *timeout_p = false;
     string err = "Malformed connection string.";
     string::const_iterator i = connectString.begin(),
         end = connectString.end();
@@ -263,6 +265,19 @@ void parse_connect_string(const string & connectString,
             *charset = val;
             *charset_p = true;
         }
+        else if (par == "timeout" and not *timeout_p)
+        {
+            if (not valid_int(val))
+            {
+                throw soci_error(err);
+            }
+            *timeout = std::atoi(val.c_str());
+            if (timeout < 0)
+            {
+                throw soci_error(err);
+            }
+            *timeout_p = true;
+        }
         else
         {
             throw soci_error(err);
@@ -289,14 +304,15 @@ mysql_session_backend::mysql_session_backend(
 {
     string host, user, password, db, unix_socket, ssl_ca, ssl_cert, ssl_key,
         charset;
-    int port = 0, local_infile = 0;
+    int port = 0, timeout = 0, local_infile = 0;
     bool host_p, user_p, password_p, db_p, unix_socket_p, port_p,
-        ssl_ca_p, ssl_cert_p, ssl_key_p, local_infile_p, charset_p;
+        ssl_ca_p, ssl_cert_p, ssl_key_p, local_infile_p, charset_p, timeout_p;
     parse_connect_string(parameters.get_connect_string(), &host, &host_p, &user, &user_p,
         &password, &password_p, &db, &db_p,
         &unix_socket, &unix_socket_p, &port, &port_p,
         &ssl_ca, &ssl_ca_p, &ssl_cert, &ssl_cert_p, &ssl_key, &ssl_key_p,
-        &local_infile, &local_infile_p, &charset, &charset_p);
+        &local_infile, &local_infile_p, &charset, &charset_p,
+        &timeout, &timeout_p);
     conn_ = mysql_init(NULL);
     if (conn_ == NULL)
     {
@@ -304,11 +320,16 @@ mysql_session_backend::mysql_session_backend(
     }
     if (charset_p)
     {
-        if (0 != mysql_options(conn_, MYSQL_SET_CHARSET_NAME, charset.c_str()))
-        {
-            clean_up();
-            throw soci_error("mysql_options(MYSQL_SET_CHARSET_NAME) failed.");
-        }
+        add_and_check_option(MYSQL_SET_CHARSET_NAME, charset.c_str());
+    }
+    if (timeout_p)
+    {
+        my_bool reconnect = 1;
+        add_and_check_option(MYSQL_OPT_RECONNECT, &reconnect);
+
+        add_and_check_option(MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
+        add_and_check_option(MYSQL_OPT_READ_TIMEOUT, &timeout);
+        add_and_check_option(MYSQL_OPT_WRITE_TIMEOUT, &timeout);
     }
     if (ssl_ca_p)
     {
@@ -318,12 +339,7 @@ mysql_session_backend::mysql_session_backend(
     }
     if (local_infile_p and local_infile == 1)
     {
-        if (0 != mysql_options(conn_, MYSQL_OPT_LOCAL_INFILE, NULL))
-        {
-            clean_up();
-            throw soci_error(
-                "mysql_options() failed when trying to set local-infile.");
-        }
+        add_and_check_option(MYSQL_OPT_LOCAL_INFILE, NULL);
     }
     if (mysql_real_connect(conn_,
             host_p ? host.c_str() : NULL,
@@ -404,6 +420,17 @@ void mysql_session_backend::clean_up()
     {
         mysql_close(conn_);
         conn_ = NULL;
+    }
+}
+
+void mysql_session_backend::add_and_check_option(mysql_option opt, const void *arg)
+{
+    if (0 != mysql_options(conn_, opt, arg))
+    {
+        clean_up();
+        std::stringstream error;
+        error << "mysql_options() failed when trying to set option = " << opt;
+        throw soci_error(error.str());
     }
 }
 
