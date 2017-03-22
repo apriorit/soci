@@ -39,7 +39,7 @@ void standard_use_type::bind(statement_impl & st, int & position)
 
 void standard_use_type::dump_value(std::ostream& os) const
 {
-    if (ind_ && *ind_ == i_null)
+    if ((ind_ != nullptr) && *ind_ == i_null)
     {
         os << "NULL";
         return;
@@ -182,7 +182,7 @@ void vector_use_type::pre_use()
 {
     convert_to_base();
 
-    backEnd_->pre_use(ind_ ? &ind_->at(0) : nullptr);
+    backEnd_->pre_use(ind_ != nullptr ? &ind_->at(0) : nullptr);
 }
 
 std::size_t vector_use_type::size() const

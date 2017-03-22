@@ -103,7 +103,7 @@ void statement_impl::bind(values & values)
                     const char nextChar = (pos + placeholder.size()) < query_.size() ?
                                           query_[pos + placeholder.size()] : '\0';
 
-                    if (std::isalnum(nextChar))
+                    if (std::isalnum(nextChar) != 0)
                     {
                         // We got a partial match only,
                         // keep looking for the placeholder
@@ -264,7 +264,7 @@ bool statement_impl::execute(bool withDataExchange)
     {
         initialFetchSize_ = intos_size();
 
-        if (intos_.empty() == false && initialFetchSize_ == 0)
+        if (!intos_.empty() && initialFetchSize_ == 0)
         {
             // this can happen only with into-vectors elements
             // and is not allowed when calling execute
@@ -291,7 +291,7 @@ bool statement_impl::execute(bool withDataExchange)
         // and *before* the into elements are touched, so that the row
         // description process can inject more into elements for
         // implicit data exchange
-        if (row_ != nullptr && alreadyDescribed_ == false)
+        if (row_ != nullptr && !alreadyDescribed_)
         {
             describe();
             define_for_row();
@@ -518,7 +518,7 @@ bool statement_impl::resize_intos(std::size_t upperBound)
         intos_[i]->resize((std::size_t)rows);
     }
 
-    return rows > 0 ? true : false;
+    return rows > 0;
 }
 
 void statement_impl::truncate_intos()
@@ -753,22 +753,25 @@ statement_impl::rethrow_current_exception_with_context(char const* operation)
                 for (std::size_t i = 0; i != usize; ++i)
                 {
                     if (i != 0)
+                    {
                         oss << ", ";
-
+                    }
                     details::use_type_base const& u = *uses_[i];
 
                     // Use the name specified in the "use()" call if any,
                     // otherwise get the name of the matching parameter from
                     // the query itself, as parsed by the backend.
                     std::string name = u.get_name();
-                    if (name.empty())
+                    if (name.empty()) {
                         name = backEnd_->get_parameter_name(static_cast<int>(i));
+}
 
                     oss << ":";
-                    if (!name.empty())
+                    if (!name.empty()) {
                         oss << name;
-                    else
+                    } else {
                         oss << (i + 1);
+}
                     oss << "=";
 
                     u.dump_value(oss);

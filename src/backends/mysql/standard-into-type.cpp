@@ -43,7 +43,7 @@ void mysql_standard_into_type_backend::pre_fetch()
 void mysql_standard_into_type_backend::post_fetch(
     bool gotData, bool calledFromFetch, indicator *ind)
 {
-    if (calledFromFetch == true && gotData == false)
+    if (calledFromFetch && !gotData)
     {
         // this is a normal end-of-rowset condition,
         // no need to do anything (fetch() will return false)
@@ -67,13 +67,13 @@ void mysql_standard_into_type_backend::post_fetch(
             *ind = i_null;
             return;
         }
-        else
-        {
+        
+        
             if (ind != nullptr)
             {
                 *ind = i_ok;
             }
-        }
+        
         const char *buf = row[pos] != nullptr ? row[pos] : "";
         switch (type_)
         {

@@ -41,12 +41,12 @@ void skip_white(std::string::const_iterator *i,
             {
                 return;
             }
-            else
-            {
+            
+            
                 throw soci_error("Unexpected end of connection string.");
-            }
+            
         }
-        if (std::isspace(**i))
+        if (std::isspace(**i) != 0)
         {
             ++*i;
         }
@@ -63,7 +63,7 @@ std::string param_name(std::string::const_iterator *i,
     std::string val("");
     for (;;)
     {
-        if (*i == end or (not std::isalpha(**i) and **i != '_'))
+        if (*i == end or ((std::isalpha(**i) == 0) and **i != '_'))
         {
             break;
         }
@@ -113,7 +113,7 @@ string param_value(string::const_iterator *i,
                 throw soci_error(err);
             }
         }
-        if (not quot and std::isspace(**i))
+        if (not quot and (std::isspace(**i) != 0))
         {
             break;
         }

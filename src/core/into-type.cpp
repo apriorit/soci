@@ -73,7 +73,7 @@ void vector_into_type::pre_fetch()
 
 void vector_into_type::post_fetch(bool gotData, bool /* calledFromFetch */)
 {
-    if (indVec_ != nullptr && indVec_->empty() == false)
+    if (indVec_ != nullptr && !indVec_->empty())
     {
         backEnd_->post_fetch(gotData, &(*indVec_)[0]);
     }

@@ -164,8 +164,9 @@ blob_wrapper *soci_create_blob_session(soci::session &sql)
 SOCI_DECL blob_handle soci_create_blob(session_handle s)
 {
     session_wrapper * session = static_cast<session_wrapper *>(s);
-    if (!session->is_ok)
+    if (!session->is_ok) {
         return nullptr;
+}
 
     return soci_create_blob_session(session->sql);
 }
@@ -360,8 +361,9 @@ statement_wrapper::~statement_wrapper()
     {
         soci::indicator &ind = use_indicators[iter.first];
         blob_wrapper *&blob = iter.second;
-        if (ind == i_null && blob != nullptr)
+        if (ind == i_null && blob != nullptr) {
             soci_destroy_blob(blob);
+}
     }
 }
 
@@ -515,12 +517,12 @@ bool name_unique_check_failed(statement_wrapper & wrapper,
         wrapper.is_ok = true;
         return false;
     }
-    else
-    {
+    
+    
         wrapper.is_ok = false;
         wrapper.error_message = "Name of use element should be unique.";
         return true;
-    }
+    
 }
 
 // helper for checking if the use element with the given name exists
@@ -650,14 +652,14 @@ bool name_exists_check_failed(statement_wrapper & wrapper,
         wrapper.is_ok = true;
         return false;
     }
-    else
-    {
+    
+    
         wrapper.is_ok = false;
         wrapper.error_message = "No use ";
         wrapper.error_message += type_name;
         wrapper.error_message += " element with this name.";
         return true;
-    }
+    
 }
 
 // helper function for resizing all vectors<T> in the map
@@ -1494,7 +1496,7 @@ SOCI_DECL void soci_set_use_date(statement_handle st, char const * name, char co
 
     std::tm dt = {};
     bool const converted = string_to_date(val, dt, *wrapper);
-    if (converted == false)
+    if (!converted)
     {
         return;
     }
@@ -1516,7 +1518,9 @@ SOCI_DECL void soci_set_use_blob(statement_handle st, char const * name, blob_ha
     soci::indicator &ind = wrapper->use_indicators[name];
     blob_wrapper *&blob = wrapper->use_blob[name];
     if (ind == i_null && blob != nullptr)
+    {
         soci_destroy_blob(blob);
+    }
 
     ind = i_ok;
     blob = static_cast<blob_wrapper *>(b);
@@ -1697,7 +1701,7 @@ SOCI_DECL void soci_set_use_date_v(statement_handle st,
 
     std::tm dt = {};
     bool const converted = string_to_date(val, dt, *wrapper);
-    if (converted == false)
+    if (!converted)
     {
         return;
     }

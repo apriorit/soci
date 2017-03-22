@@ -97,7 +97,7 @@ void mysql_statement_backend::prepare(std::string const & query,
             escaped = *it == '\\' && !escaped;
             break;
         case eInName:
-            if (std::isalnum(*it) || *it == '_')
+            if ((std::isalnum(*it) != 0) || *it == '_')
             {
                 name += *it;
             }
@@ -137,7 +137,7 @@ void mysql_statement_backend::prepare(std::string const & query,
 statement_backend::exec_fetch_result
 mysql_statement_backend::execute(int number)
 {
-    if (justDescribed_ == false)
+    if (!justDescribed_)
     {
         clean_up();
 
@@ -303,25 +303,25 @@ mysql_statement_backend::execute(int number)
         {
             return ef_no_data;
         }
-        else
-        {
+        
+        
             if (number > 0)
             {
                 // prepare for the subsequent data consumption
                 return fetch(number);
             }
-            else
-            {
+            
+            
                 // execute(0) was meant to only perform the query
                 return ef_success;
-            }
-        }
+            
+        
     }
-    else
-    {
+    
+    
         // it was not a SELECT
         return ef_no_data;
-    }
+    
 }
 
 statement_backend::exec_fetch_result
@@ -341,8 +341,8 @@ mysql_statement_backend::fetch(int number)
         // all rows were already consumed
         return ef_no_data;
     }
-    else
-    {
+    
+    
         if (currentRow_ + number > numberOfRows_)
         {
             rowsToConsume_ = numberOfRows_ - currentRow_;
@@ -352,12 +352,12 @@ mysql_statement_backend::fetch(int number)
             // actually some rows fetched
             return ef_no_data;
         }
-        else
-        {
+        
+        
             rowsToConsume_ = number;
             return ef_success;
-        }
-    }
+        
+    
 }
 
 long long mysql_statement_backend::get_affected_rows()
@@ -409,11 +409,11 @@ void mysql_statement_backend::describe_column(int colNum,
         type = dt_integer;
         break;
     case FIELD_TYPE_LONG:       //MYSQL_TYPE_LONG:
-        type = field->flags & UNSIGNED_FLAG ? dt_long_long
+        type = (field->flags & UNSIGNED_FLAG) != 0u ? dt_long_long
                                             : dt_integer;
         break;
     case FIELD_TYPE_LONGLONG:   //MYSQL_TYPE_LONGLONG:
-        type = field->flags & UNSIGNED_FLAG ? dt_unsigned_long_long :
+        type = (field->flags & UNSIGNED_FLAG) != 0u ? dt_unsigned_long_long :
                                               dt_long_long;
         break;
     case FIELD_TYPE_FLOAT:      //MYSQL_TYPE_FLOAT:

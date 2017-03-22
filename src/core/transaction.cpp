@@ -19,7 +19,7 @@ transaction::transaction(session& sql)
 
 transaction::~transaction()
 {
-    if (handled_ == false)
+    if (!handled_)
     {
         try
         {

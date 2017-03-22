@@ -18,7 +18,7 @@ extern "C"
 // session
 
 typedef void * session_handle;
-SOCI_DECL session_handle soci_create_session(char const * connectionString);
+SOCI_DECL session_handle soci_create_session(char const * connection_string);
 SOCI_DECL void soci_destroy_session(session_handle s);
 
 SOCI_DECL void soci_begin(session_handle s);
@@ -111,7 +111,7 @@ SOCI_DECL void soci_set_use_int      (statement_handle st, char const * name, in
 SOCI_DECL void soci_set_use_long_long(statement_handle st, char const * name, long long val);
 SOCI_DECL void soci_set_use_double   (statement_handle st, char const * name, double val);
 SOCI_DECL void soci_set_use_date     (statement_handle st, char const * name, char const * val);
-SOCI_DECL void soci_set_use_blob     (statement_handle st, char const * name, blob_handle blob);
+SOCI_DECL void soci_set_use_blob     (statement_handle st, char const * name, blob_handle b);
 
 // positional (re)size of vectors
 SOCI_DECL int  soci_use_get_size_v(statement_handle st);
@@ -149,8 +149,8 @@ SOCI_DECL long long soci_get_affected_rows(statement_handle st);
 SOCI_DECL int       soci_fetch(statement_handle st);
 SOCI_DECL int       soci_got_data(statement_handle st);
 
-SOCI_DECL int soci_statement_state(statement_handle s);
-SOCI_DECL char const * soci_statement_error_message(statement_handle s);
+SOCI_DECL int soci_statement_state(statement_handle st);
+SOCI_DECL char const * soci_statement_error_message(statement_handle st);
 
 #ifdef __cplusplus
 } // extern "C"

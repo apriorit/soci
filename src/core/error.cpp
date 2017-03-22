@@ -36,8 +36,9 @@ public:
                 // This is a hack, but appending the extra context to the
                 // message looks much better if we remove the full stop at its
                 // end first.
-                if (*full_message_.rbegin() == '.')
+                if (*full_message_.rbegin() == '.') {
                     full_message_.erase(full_message_.size() - 1);
+}
 
                 // Now do append all the extra context we have.
                 typedef std::vector<std::string>::const_iterator iter_type;
@@ -83,7 +84,7 @@ soci_error_extra_info *make_safe_copy(soci_error_extra_info* info)
 {
     try
     {
-        return info ? new soci_error_extra_info(*info) : nullptr;
+        return info != nullptr ? new soci_error_extra_info(*info) : nullptr;
     }
     catch (...)
     {
@@ -130,16 +131,18 @@ std::string soci_error::get_error_message() const
 
 char const* soci_error::what() const throw()
 {
-    if (info_)
+    if (info_ != nullptr) {
         return info_->get_full_message(get_error_message());
+}
 
     return std::runtime_error::what();
 }
 
 void soci_error::add_context(std::string const& context)
 {
-    if (!info_)
+    if (info_ == nullptr) {
         info_ = new soci_error_extra_info();
+}
 
     info_->add_context(context);
 }

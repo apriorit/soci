@@ -112,7 +112,7 @@ public:
     // If true is returned, value is filled with the last auto-generated value
     // for this table (although some backends ignore the table argument and
     // return the last value auto-generated in this session).
-    bool get_last_insert_id(std::string const & table, long & value);
+    bool get_last_insert_id(std::string const & sequence, long & value);
 
     // Returns once_temp_type for the internally composed query
     // for the list of tables in the current schema.

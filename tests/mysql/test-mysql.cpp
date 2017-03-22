@@ -57,7 +57,7 @@ TEST_CASE("MySQL stored procedures", "[mysql][stored-procedure]")
         into(out),
         use(in, "input"));
 
-    st.execute(1);
+    st.execute(true);
     CHECK(out == in);
 
     // explicit procedure syntax
@@ -69,7 +69,7 @@ TEST_CASE("MySQL stored procedures", "[mysql][stored-procedure]")
             "myecho(:input)",
             into(out), use(in, "input"));
 
-        proc.execute(1);
+        proc.execute(true);
         CHECK(out == in);
     }
 
@@ -791,7 +791,7 @@ TEST_CASE("MySQL last insert id", "[mysql][last-insert-id]")
     sql << "insert into soci_test () values ()";
     long id;
     bool result = sql.get_last_insert_id("soci_test", id);
-    CHECK(result == true);
+    CHECK(result);
     CHECK(id == 42);
 }
 

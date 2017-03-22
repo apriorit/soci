@@ -201,7 +201,7 @@ void do_register_backend(std::string const & name, std::string const & shared_ob
     //   - file named libsoci_NAME.so.SOVERSION is searched in the list of search paths
 
     soci_handler_t h = nullptr;
-    if (shared_object.empty() == false)
+    if (!shared_object.empty())
     {
         h = DLOPEN(shared_object.c_str());
     }

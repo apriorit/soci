@@ -109,7 +109,7 @@ bool connection_pool::try_lease(std::size_t & pos, int timeout)
         throw soci_error("Synchronization error");
     }
 
-    while (pimpl_->find_free(pos) == false)
+    while (!pimpl_->find_free(pos))
     {
         if (timeout < 0)
         {

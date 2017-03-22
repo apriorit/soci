@@ -25,10 +25,10 @@ long parse10(char const *&p1, char *&p2, const char *msg)
         p1 = p2 + 1;
         return v;
     }
-    else
-    {
+    
+    
         throw soci::soci_error(msg);
-    }
+    
 }
 
 } // namespace anonymous

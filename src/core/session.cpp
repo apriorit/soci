@@ -203,10 +203,10 @@ std::ostringstream & session::get_query_stream()
     {
         return pool_->at(poolPosition_).get_query_stream();
     }
-    else
-    {
+    
+    
         return query_stream_;
-    }
+    
 }
 
 std::string session::get_query() const
@@ -215,19 +215,19 @@ std::string session::get_query() const
     {
         return pool_->at(poolPosition_).get_query();
     }
-    else
-    {
+    
+    
         // preserve logical constness of get_query,
         // stream used as read-only here,
         session* pthis = const_cast<session*>(this);
 
         // sole place where any user-defined query transformation is applied
-        if (query_transformation_)
+        if (query_transformation_ != nullptr)
         {
             return (*query_transformation_)(pthis->get_query_stream().str());
         }
         return pthis->get_query_stream().str();
-    }
+    
 }
 
 
@@ -262,10 +262,10 @@ std::ostream * session::get_log_stream() const
     {
         return pool_->at(poolPosition_).get_log_stream();
     }
-    else
-    {
+    
+    
         return logStream_;
-    }
+    
 }
 
 void session::log_query(std::string const & query)
@@ -291,10 +291,10 @@ std::string session::get_last_query() const
     {
         return pool_->at(poolPosition_).get_last_query();
     }
-    else
-    {
+    
+    
         return lastQuery_;
-    }
+    
 }
 
 void session::set_got_data(bool gotData)
@@ -315,10 +315,10 @@ bool session::got_data() const
     {
         return pool_->at(poolPosition_).got_data();
     }
-    else
-    {
+    
+    
         return gotData_;
-    }
+    
 }
 
 void session::uppercase_column_names(bool forceToUpper)
@@ -339,10 +339,10 @@ bool session::get_uppercase_column_names() const
     {
         return pool_->at(poolPosition_).get_uppercase_column_names();
     }
-    else
-    {
+    
+    
         return uppercaseColumnNames_;
-    }
+    
 }
 
 bool session::get_next_sequence_value(std::string const & sequence, long & value)

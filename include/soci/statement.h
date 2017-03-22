@@ -42,7 +42,7 @@ public:
     ~statement_impl();
 
     void alloc();
-    void bind(values & v);
+    void bind(values & values);
 
     void exchange(into_type_ptr const & i) { intos_.exchange(i); }
     template <typename T, typename Indicator>
