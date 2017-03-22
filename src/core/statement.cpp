@@ -20,7 +20,7 @@ using namespace soci::details;
 
 
 statement_impl::statement_impl(session & s)
-    : session_(s), refCount_(1), row_(0),
+    : session_(s), refCount_(1), row_(nullptr),
       fetchSize_(1), initialFetchSize_(1),
       alreadyDescribed_(false)
 {
@@ -29,7 +29,7 @@ statement_impl::statement_impl(session & s)
 
 statement_impl::statement_impl(prepare_temp_type const & prep)
     : session_(prep.get_prepare_info()->session_),
-      refCount_(1), row_(0), fetchSize_(1), alreadyDescribed_(false)
+      refCount_(1), row_(nullptr), fetchSize_(1), alreadyDescribed_(false)
 {
     backEnd_ = session_.make_statement_backend();
 
@@ -73,7 +73,7 @@ void statement_impl::bind(values & values)
 
     try
     {
-        for (std::vector<details::standard_use_type*>::iterator it =
+        for (auto it =
             values.uses_.begin(); it != values.uses_.end(); ++it)
         {
             // only bind those variables which are:
@@ -171,21 +171,21 @@ void statement_impl::bind_clean_up()
     for (std::size_t i = 0; i != indsize; ++i)
     {
         delete indicators_[i];
-        indicators_[i] = NULL;
+        indicators_[i] = nullptr;
     }
 
-    row_ = NULL;
+    row_ = nullptr;
     alreadyDescribed_ = false;
 }
 
 void statement_impl::clean_up()
 {
     bind_clean_up();
-    if (backEnd_ != NULL)
+    if (backEnd_ != nullptr)
     {
         backEnd_->clean_up();
         delete backEnd_;
-        backEnd_ = NULL;
+        backEnd_ = nullptr;
     }
 }
 
@@ -291,7 +291,7 @@ bool statement_impl::execute(bool withDataExchange)
         // and *before* the into elements are touched, so that the row
         // description process can inject more into elements for
         // implicit data exchange
-        if (row_ != NULL && alreadyDescribed_ == false)
+        if (row_ != nullptr && alreadyDescribed_ == false)
         {
             describe();
             define_for_row();
@@ -679,7 +679,7 @@ void statement_impl::describe()
 
 void statement_impl::set_row(row * r)
 {
-    if (row_ != NULL)
+    if (row_ != nullptr)
     {
         throw soci_error(
             "Only one Row element allowed in a single statement.");

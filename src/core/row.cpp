@@ -99,7 +99,7 @@ column_properties const & row::get_properties(std::string const &name) const
 
 std::size_t row::find_column(std::string const &name) const
 {
-    std::map<std::string, std::size_t>::const_iterator it = index_.find(name);
+    auto it = index_.find(name);
     if (it == index_.end())
     {
         std::ostringstream msg;

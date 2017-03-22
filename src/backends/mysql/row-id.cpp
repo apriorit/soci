@@ -24,8 +24,7 @@ mysql_rowid_backend::mysql_rowid_backend(
 }
 
 mysql_rowid_backend::~mysql_rowid_backend()
-{
-}
+= default;
 
 #ifdef _MSC_VER
 #pragma warning(pop)

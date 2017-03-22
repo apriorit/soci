@@ -37,7 +37,7 @@ indicator values::get_indicator(std::string const& name) const
     }
     else
     {
-        std::map<std::string, std::size_t>::const_iterator it = index_.find(name);
+        auto it = index_.find(name);
         if (it == index_.end())
         {
             std::ostringstream msg;

@@ -272,7 +272,7 @@ void parse_connect_string(const string & connectString,
                 throw soci_error(err);
             }
             *timeout = std::atoi(val.c_str());
-            if (timeout < 0)
+            if (*timeout < 0)
             {
                 throw soci_error(err);
             }
@@ -313,8 +313,8 @@ mysql_session_backend::mysql_session_backend(
         &ssl_ca, &ssl_ca_p, &ssl_cert, &ssl_cert_p, &ssl_key, &ssl_key_p,
         &local_infile, &local_infile_p, &charset, &charset_p,
         &timeout, &timeout_p);
-    conn_ = mysql_init(NULL);
-    if (conn_ == NULL)
+    conn_ = mysql_init(nullptr);
+    if (conn_ == nullptr)
     {
         throw soci_error("mysql_init() failed.");
     }
@@ -333,23 +333,23 @@ mysql_session_backend::mysql_session_backend(
     }
     if (ssl_ca_p)
     {
-        mysql_ssl_set(conn_, ssl_key_p ? ssl_key.c_str() : NULL,
-                      ssl_cert_p ? ssl_cert.c_str() : NULL,
-                      ssl_ca.c_str(), 0, 0);
+        mysql_ssl_set(conn_, ssl_key_p ? ssl_key.c_str() : nullptr,
+                      ssl_cert_p ? ssl_cert.c_str() : nullptr,
+                      ssl_ca.c_str(), nullptr, nullptr);
     }
     if (local_infile_p and local_infile == 1)
     {
-        add_and_check_option(MYSQL_OPT_LOCAL_INFILE, NULL);
+        add_and_check_option(MYSQL_OPT_LOCAL_INFILE, nullptr);
     }
     if (mysql_real_connect(conn_,
-            host_p ? host.c_str() : NULL,
-            user_p ? user.c_str() : NULL,
-            password_p ? password.c_str() : NULL,
-            db_p ? db.c_str() : NULL,
+            host_p ? host.c_str() : nullptr,
+            user_p ? user.c_str() : nullptr,
+            password_p ? password.c_str() : nullptr,
+            db_p ? db.c_str() : nullptr,
             port_p ? port : 0,
-            unix_socket_p ? unix_socket.c_str() : NULL,
+            unix_socket_p ? unix_socket.c_str() : nullptr,
 #ifdef CLIENT_MULTI_RESULTS
-            CLIENT_FOUND_ROWS | CLIENT_MULTI_RESULTS) == NULL)
+            CLIENT_FOUND_ROWS | CLIENT_MULTI_RESULTS) == nullptr)
 #else
             CLIENT_FOUND_ROWS) == NULL)
 #endif
@@ -416,10 +416,10 @@ bool mysql_session_backend::get_last_insert_id(
 
 void mysql_session_backend::clean_up()
 {
-    if (conn_ != NULL)
+    if (conn_ != nullptr)
     {
         mysql_close(conn_);
-        conn_ = NULL;
+        conn_ = nullptr;
     }
 }
 

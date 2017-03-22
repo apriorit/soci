@@ -25,8 +25,7 @@ mysql_blob_backend::mysql_blob_backend(mysql_session_backend &session)
 }
 
 mysql_blob_backend::~mysql_blob_backend()
-{
-}
+= default;
 
 std::size_t mysql_blob_backend::get_len()
 {

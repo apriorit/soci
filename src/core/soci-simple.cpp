@@ -36,14 +36,14 @@ struct session_wrapper
 
 SOCI_DECL session_handle soci_create_session(char const * connection_string)
 {
-    session_wrapper * wrapper = NULL;
+    session_wrapper * wrapper = nullptr;
     try
     {
         wrapper = new session_wrapper();
     }
     catch (...)
     {
-        return NULL;
+        return nullptr;
     }
 
     try
@@ -147,7 +147,7 @@ struct blob_wrapper
 
 blob_wrapper *soci_create_blob_session(soci::session &sql)
 {
-    blob_wrapper *bw = NULL;
+    blob_wrapper *bw = nullptr;
     try
     {
         bw = new blob_wrapper(sql);
@@ -155,7 +155,7 @@ blob_wrapper *soci_create_blob_session(soci::session &sql)
     catch (...)
     {
         delete bw;
-        return NULL;
+        return nullptr;
     }
 
     return bw;
@@ -165,7 +165,7 @@ SOCI_DECL blob_handle soci_create_blob(session_handle s)
 {
     session_wrapper * session = static_cast<session_wrapper *>(s);
     if (!session->is_ok)
-        return NULL;
+        return nullptr;
 
     return soci_create_blob_session(session->sql);
 }
@@ -351,18 +351,16 @@ private:
 
 statement_wrapper::~statement_wrapper()
 {
-    for (std::map<int, blob_wrapper *>::iterator iter = into_blob.begin(), last = into_blob.end();
-         iter != last; ++iter)
+    for (auto & iter : into_blob)
     {
-        soci_destroy_blob(iter->second);
+        soci_destroy_blob(iter.second);
     }
 
-    for (std::map<std::string, blob_wrapper *>::iterator iter = use_blob.begin(), last = use_blob.end();
-         iter != last; ++iter)
+    for (auto & iter : use_blob)
     {
-        soci::indicator &ind = use_indicators[iter->first];
-        blob_wrapper *&blob = iter->second;
-        if (ind == i_null && blob != NULL)
+        soci::indicator &ind = use_indicators[iter.first];
+        blob_wrapper *&blob = iter.second;
+        if (ind == i_null && blob != nullptr)
             soci_destroy_blob(blob);
     }
 }
@@ -667,7 +665,7 @@ template <typename T>
 void resize_in_map(std::map<std::string, std::vector<T> > & m, int new_size)
 {
     typedef typename std::map<std::string, std::vector<T> >::iterator iterator;
-    iterator it = m.begin();
+    auto it = m.begin();
     iterator const end = m.end();
     for ( ; it != end; ++it)
     {
@@ -725,14 +723,14 @@ SOCI_DECL statement_handle soci_create_statement(session_handle s)
     session_wrapper * session_w = static_cast<session_wrapper *>(s);
     try
     {
-        statement_wrapper * statement_w = new statement_wrapper(session_w->sql);
+        auto  statement_w = new statement_wrapper(session_w->sql);
         return statement_w;
     }
     catch (std::exception const & e)
     {
         session_w->is_ok = false;
         session_w->error_message = e.what();
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1035,7 +1033,7 @@ SOCI_DECL blob_handle soci_get_into_blob(statement_handle st, int position)
             statement_wrapper::single, position, dt_blob, "blob") ||
         not_null_check_failed(*wrapper, position))
     {
-        return NULL;
+        return nullptr;
     }
 
     return wrapper->into_blob[position];
@@ -1517,7 +1515,7 @@ SOCI_DECL void soci_set_use_blob(statement_handle st, char const * name, blob_ha
 
     soci::indicator &ind = wrapper->use_indicators[name];
     blob_wrapper *&blob = wrapper->use_blob[name];
-    if (ind == i_null && blob != NULL)
+    if (ind == i_null && blob != nullptr)
         soci_destroy_blob(blob);
 
     ind = i_ok;
@@ -1803,7 +1801,7 @@ SOCI_DECL blob_handle soci_get_use_blob(statement_handle st, char const * name)
     if (name_exists_check_failed(*wrapper,
             name, dt_blob, statement_wrapper::bulk, "blob"))
     {
-        return NULL;
+        return nullptr;
     }
 
     return wrapper->use_blob[name];
@@ -1893,7 +1891,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
         {
             // strings
             typedef std::map<std::string, std::string>::iterator iterator;
-            iterator uit = wrapper->use_strings.begin();
+            auto uit = wrapper->use_strings.begin();
             iterator const uend = wrapper->use_strings.end();
             for ( ; uit != uend; ++uit)
             {
@@ -1906,7 +1904,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
         {
             // ints
             typedef std::map<std::string, int>::iterator iterator;
-            iterator uit = wrapper->use_ints.begin();
+            auto uit = wrapper->use_ints.begin();
             iterator const uend = wrapper->use_ints.end();
             for ( ; uit != uend; ++uit)
             {
@@ -1919,7 +1917,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
         {
             // longlongs
             typedef std::map<std::string, long long>::iterator iterator;
-            iterator uit = wrapper->use_longlongs.begin();
+            auto uit = wrapper->use_longlongs.begin();
             iterator const uend = wrapper->use_longlongs.end();
             for ( ; uit != uend; ++uit)
             {
@@ -1932,7 +1930,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
         {
             // doubles
             typedef std::map<std::string, double>::iterator iterator;
-            iterator uit = wrapper->use_doubles.begin();
+            auto uit = wrapper->use_doubles.begin();
             iterator const uend = wrapper->use_doubles.end();
             for ( ; uit != uend; ++uit)
             {
@@ -1945,7 +1943,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
         {
             // dates
             typedef std::map<std::string, std::tm>::iterator iterator;
-            iterator uit = wrapper->use_dates.begin();
+            auto uit = wrapper->use_dates.begin();
             iterator const uend = wrapper->use_dates.end();
             for ( ; uit != uend; ++uit)
             {
@@ -1957,9 +1955,8 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
         }
         {
             // blobs
-            typedef std::map<std::string, blob_wrapper *>::iterator iterator;
-            iterator uit = wrapper->use_blob.begin();
-            iterator uend = wrapper->use_blob.end();
+            auto uit = wrapper->use_blob.begin();
+            auto uend = wrapper->use_blob.end();
             for ( ; uit != uend; ++uit)
             {
                 std::string const & use_name = uit->first;
@@ -1974,7 +1971,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
             // strings
             typedef std::map<std::string,
                 std::vector<std::string> >::iterator iterator;
-            iterator uit = wrapper->use_strings_v.begin();
+            auto uit = wrapper->use_strings_v.begin();
             iterator const uend = wrapper->use_strings_v.end();
             for ( ; uit != uend; ++uit)
             {
@@ -1989,7 +1986,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
             // ints
             typedef std::map<std::string,
                 std::vector<int> >::iterator iterator;
-            iterator uit = wrapper->use_ints_v.begin();
+            auto uit = wrapper->use_ints_v.begin();
             iterator const uend = wrapper->use_ints_v.end();
             for ( ; uit != uend; ++uit)
             {
@@ -2004,7 +2001,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
             // longlongs
             typedef std::map<std::string,
                 std::vector<long long> >::iterator iterator;
-            iterator uit = wrapper->use_longlongs_v.begin();
+            auto uit = wrapper->use_longlongs_v.begin();
             iterator const uend = wrapper->use_longlongs_v.end();
             for ( ; uit != uend; ++uit)
             {
@@ -2019,7 +2016,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
             // doubles
             typedef std::map<std::string,
                 std::vector<double> >::iterator iterator;
-            iterator uit = wrapper->use_doubles_v.begin();
+            auto uit = wrapper->use_doubles_v.begin();
             iterator const uend = wrapper->use_doubles_v.end();
             for ( ; uit != uend; ++uit)
             {
@@ -2034,7 +2031,7 @@ SOCI_DECL void soci_prepare(statement_handle st, char const * query)
             // dates
             typedef std::map<std::string,
                 std::vector<std::tm> >::iterator iterator;
-            iterator uit = wrapper->use_dates_v.begin();
+            auto uit = wrapper->use_dates_v.begin();
             iterator const uend = wrapper->use_dates_v.end();
             for ( ; uit != uend; ++uit)
             {

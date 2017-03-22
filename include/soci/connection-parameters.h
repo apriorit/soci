@@ -23,8 +23,8 @@ class SOCI_DECL connection_parameters
 {
 public:
     connection_parameters();
-    connection_parameters(backend_factory const & factory, std::string const & connectString);
-    connection_parameters(std::string const & backendName, std::string const & connectString);
+    connection_parameters(backend_factory const & factory, std::string connectString);
+    connection_parameters(std::string const & backendName, std::string connectString);
     explicit connection_parameters(std::string const & fullConnectString);
 
     // Default copy ctor, assignment operator and dtor are all OK for us.

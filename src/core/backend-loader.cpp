@@ -89,7 +89,7 @@ struct info
 {
     soci_handler_t handler_;
     backend_factory const * factory_;
-    info() : handler_(0), factory_(0) {}
+    info() : handler_(nullptr), factory_(nullptr) {}
 };
 
 typedef std::map<std::string, info> factory_map;
@@ -105,7 +105,7 @@ std::vector<std::string> get_default_paths()
 
     // TODO: may be problem with finding getenv in std namespace in Visual C++ --mloskot
     char const* const penv = std::getenv("SOCI_BACKENDS_PATH");
-    if (0 == penv)
+    if (nullptr == penv)
     {
         paths.push_back(".");
         paths.push_back(DEFAULT_BACKENDS_PATH);
@@ -177,12 +177,12 @@ private:
 // non-synchronized helper for the other functions
 void do_unload(std::string const & name)
 {
-    factory_map::iterator i = factories_.find(name);
+    auto i = factories_.find(name);
 
     if (i != factories_.end())
     {
         soci_handler_t h = i->second.handler_;
-        if (h != NULL)
+        if (h != nullptr)
         {
             DLCLOSE(h);
         }
@@ -200,7 +200,7 @@ void do_register_backend(std::string const & name, std::string const & shared_ob
     // - otherwise (shared_object not provided or empty):
     //   - file named libsoci_NAME.so.SOVERSION is searched in the list of search paths
 
-    soci_handler_t h = 0;
+    soci_handler_t h = nullptr;
     if (shared_object.empty() == false)
     {
         h = DLOPEN(shared_object.c_str());
@@ -209,14 +209,14 @@ void do_register_backend(std::string const & name, std::string const & shared_ob
     {
         // try system paths
         h = DLOPEN(LIBNAME(name).c_str());
-        if (0 == h)
+        if (nullptr == h)
         {
             // try all search paths
             for (std::size_t i = 0; i != search_paths_.size(); ++i)
             {
                 std::string const fullFileName(search_paths_[i] + "/" + LIBNAME(name));
                 h = DLOPEN(fullFileName.c_str());
-                if (0 != h)
+                if (nullptr != h)
                 {
                     // already found
                     break;
@@ -225,7 +225,7 @@ void do_register_backend(std::string const & name, std::string const & shared_ob
          }
     }
 
-    if (0 == h)
+    if (nullptr == h)
     {
         throw soci_error("Failed to find shared library for backend " + name);
     }
@@ -233,12 +233,12 @@ void do_register_backend(std::string const & name, std::string const & shared_ob
     std::string symbol = "factory_" + name;
 
     typedef backend_factory const * bfc_ptr;
-    typedef bfc_ptr (*get_t)(void);
+    typedef bfc_ptr (*get_t)();
     get_t entry;
     entry = reinterpret_cast<get_t>(
             reinterpret_cast<uintptr_t>(DLSYM(h, symbol.c_str())));
 
-    if (0 == entry)
+    if (nullptr == entry)
     {
         DLCLOSE(h);
         throw soci_error("Failed to resolve dynamic symbol: " + symbol);
@@ -263,7 +263,7 @@ backend_factory const& dynamic_backends::get(std::string const& name)
 {
     scoped_lock lock(&mutex_);
 
-    factory_map::iterator i = factories_.find(name);
+    auto i = factories_.find(name);
 
     if (i != factories_.end())
     {
@@ -316,9 +316,9 @@ SOCI_DECL std::vector<std::string> dynamic_backends::list_all()
     std::vector<std::string> ret;
     ret.reserve(factories_.size());
 
-    for (factory_map::iterator i = factories_.begin(); i != factories_.end(); ++i)
+    for (auto & factorie : factories_)
     {
-        std::string const& name = i->first;
+        std::string const& name = factorie.first;
         ret.push_back(name);
     }
 
@@ -336,10 +336,10 @@ SOCI_DECL void dynamic_backends::unload_all()
 {
     scoped_lock lock(&mutex_);
 
-    for (factory_map::iterator i = factories_.begin(); i != factories_.end(); ++i)
+    for (auto & factorie : factories_)
     {
-        soci_handler_t h = i->second.handler_;
-        if (0 != h)
+        soci_handler_t h = factorie.second.handler_;
+        if (nullptr != h)
         {
             DLCLOSE(h);
         }

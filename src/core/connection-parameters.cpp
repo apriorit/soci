@@ -6,6 +6,8 @@
 //
 
 #define SOCI_SOURCE
+#include <utility>
+
 #include "soci/connection-parameters.h"
 #include "soci/soci-backend.h"
 #include "soci/backend-loader.h"
@@ -34,19 +36,19 @@ void parseConnectString(std::string const & connectString,
 } // namespace anonymous
 
 connection_parameters::connection_parameters()
-    : factory_(NULL)
+    : factory_(nullptr)
 {
 }
 
 connection_parameters::connection_parameters(backend_factory const & factory,
-    std::string const & connectString)
-    : factory_(&factory), connectString_(connectString)
+    std::string  connectString)
+    : factory_(&factory), connectString_(std::move(connectString))
 {
 }
 
 connection_parameters::connection_parameters(std::string const & backendName,
-    std::string const & connectString)
-    : factory_(&dynamic_backends::get(backendName)), connectString_(connectString)
+    std::string  connectString)
+    : factory_(&dynamic_backends::get(backendName)), connectString_(std::move(connectString))
 {
 }
 

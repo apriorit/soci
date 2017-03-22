@@ -18,7 +18,7 @@ using std::string;
 
 mysql_statement_backend::mysql_statement_backend(
     mysql_session_backend &session)
-    : session_(session), result_(NULL),
+    : session_(session), result_(nullptr),
        rowsAffectedBulk_(-1LL), justDescribed_(false),
        hasIntoElements_(false), hasVectorIntoElements_(false),
        hasUseElements_(false), hasVectorUseElements_(false)
@@ -36,10 +36,10 @@ void mysql_statement_backend::clean_up()
     // potential new execution.
     rowsAffectedBulk_ = -1;
 
-    if (result_ != NULL)
+    if (result_ != nullptr)
     {
         mysql_free_result(result_);
-        result_ = NULL;
+        result_ = nullptr;
     }
 }
 
@@ -174,12 +174,9 @@ mysql_statement_backend::execute(int number)
                     // the map of use buffers can be traversed
                     // in its natural order
 
-                    for (UseByPosBuffersMap::iterator
-                             it = useByPosBuffers_.begin(),
-                             end = useByPosBuffers_.end();
-                         it != end; ++it)
+                    for (auto & useByPosBuffer : useByPosBuffers_)
                     {
-                        char **buffers = it->second;
+                        char **buffers = useByPosBuffer.second;
                         //cerr<<"i: "<<i<<", buffers[i]: "<<buffers[i]<<endl;
                         paramValues.push_back(buffers[i]);
                     }
@@ -188,17 +185,15 @@ mysql_statement_backend::execute(int number)
                 {
                     // use elements bind by name
 
-                    for (std::vector<std::string>::iterator
-                             it = names_.begin(), end = names_.end();
-                         it != end; ++it)
+                    for (auto & name : names_)
                     {
-                        UseByNameBuffersMap::iterator b
-                            = useByNameBuffers_.find(*it);
+                        auto b
+                            = useByNameBuffers_.find(name);
                         if (b == useByNameBuffers_.end())
                         {
                             std::string msg(
                                 "Missing use element for bind by name (");
-                            msg += *it;
+                            msg += name;
                             msg += ").";
                             throw soci_error(msg);
                         }
@@ -275,12 +270,12 @@ mysql_statement_backend::execute(int number)
                 mysql_errno(session_.conn_));
         }
         result_ = mysql_store_result(session_.conn_);
-        if (result_ == NULL and mysql_field_count(session_.conn_) != 0)
+        if (result_ == nullptr and mysql_field_count(session_.conn_) != 0)
         {
             throw mysql_soci_error(mysql_error(session_.conn_),
                 mysql_errno(session_.conn_));
         }
-        if (result_ != NULL)
+        if (result_ != nullptr)
         {
             // Cache the rows offsets to have random access to the rows later.
             // [mysql_data_seek() is O(n) so we don't want to use it].
@@ -298,7 +293,7 @@ mysql_statement_backend::execute(int number)
         justDescribed_ = false;
     }
 
-    if (result_ != NULL)
+    if (result_ != nullptr)
     {
         currentRow_ = 0;
         rowsToConsume_ = 0;

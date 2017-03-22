@@ -57,13 +57,13 @@ connection_pool::connection_pool(std::size_t size)
         pimpl_->sessions_[i] = std::make_pair(true, new session());
     }
 
-    int cc = pthread_mutex_init(&(pimpl_->mtx_), NULL);
+    int cc = pthread_mutex_init(&(pimpl_->mtx_), nullptr);
     if (cc != 0)
     {
         throw soci_error("Synchronization error");
     }
 
-    cc = pthread_cond_init(&(pimpl_->cond_), NULL);
+    cc = pthread_cond_init(&(pimpl_->cond_), nullptr);
     if (cc != 0)
     {
         throw soci_error("Synchronization error");
@@ -91,7 +91,7 @@ bool connection_pool::try_lease(std::size_t & pos, int timeout)
         // timeout is relative in milliseconds
 
         struct timeval tmv;
-        gettimeofday(&tmv, NULL);
+        gettimeofday(&tmv, nullptr);
 
         tm.tv_sec = tmv.tv_sec + timeout / 1000;
         tm.tv_nsec = tmv.tv_usec * 1000 + (timeout % 1000) * 1000 * 1000;

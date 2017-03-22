@@ -48,7 +48,7 @@ private:
 
 public:
     session();
-    explicit session(connection_parameters const & parameters);
+    explicit session(connection_parameters parameters);
     session(backend_factory const & factory, std::string const & connectString);
     session(std::string const & backendName, std::string const & connectString);
     explicit session(std::string const & connectString);

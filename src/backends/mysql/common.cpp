@@ -43,7 +43,7 @@ void soci::details::mysql::parse_std_tm(char const *buf, std::tm &t)
 
     const char *errMsg = "Cannot convert data to std::tm.";
 
-    if (strchr(buf, '-') != NULL)
+    if (strchr(buf, '-') != nullptr)
     {
       year  = parse10(p1, p2, errMsg);
       month = parse10(p1, p2, errMsg);
@@ -57,7 +57,7 @@ void soci::details::mysql::parse_std_tm(char const *buf, std::tm &t)
     }
 
 
-    if (strchr(buf, ':') != NULL)
+    if (strchr(buf, ':') != nullptr)
     {
         // there is also the time of day available
         hour   = parse10(p1, p2, errMsg);
@@ -70,7 +70,7 @@ void soci::details::mysql::parse_std_tm(char const *buf, std::tm &t)
 
 char * soci::details::mysql::quote(MYSQL * conn, const char *s, size_t len)
 {
-    char *retv = new char[2 * len + 3];
+    auto retv = new char[2 * len + 3];
     retv[0] = '\'';
     int len_esc = mysql_real_escape_string(conn, retv + 1, s, static_cast<unsigned long>(len));
     retv[len_esc + 1] = '\'';
