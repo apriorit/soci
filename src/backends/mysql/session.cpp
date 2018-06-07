@@ -154,7 +154,9 @@ void parse_connect_string(const string & connectString,
     string *password, bool *password_p,
     string *db, bool *db_p,
     string *unix_socket, bool *unix_socket_p,
-    int *port, bool *port_p, string *ssl_ca, bool *ssl_ca_p,
+    int *port, bool *port_p,
+    mysql_ssl_mode* ssl_mode, bool* ssl_mode_p,
+    string *ssl_ca, bool *ssl_ca_p,
     string *ssl_cert, bool *ssl_cert_p, string *ssl_key, bool *ssl_key_p,
     int *local_infile, bool *local_infile_p,
     string *charset, bool *charset_p,
@@ -166,6 +168,7 @@ void parse_connect_string(const string & connectString,
     *db_p = false;
     *unix_socket_p = false;
     *port_p = false;
+    *ssl_mode_p = false;
     *ssl_ca_p = false;
     *ssl_cert_p = false;
     *ssl_key_p = false;
@@ -232,6 +235,34 @@ void parse_connect_string(const string & connectString,
         {
             *unix_socket = val;
             *unix_socket_p = true;
+        }
+        else if (par == "ssl_mode" and not *ssl_mode_p)
+        {
+            *ssl_mode_p = true;
+            if (val == "disabled")
+            {
+                *ssl_mode = SSL_MODE_DISABLED;
+            }
+            else if (val == "preferred")
+            {
+                *ssl_mode = SSL_MODE_PREFERRED;
+            }
+            else if (val == "required")
+            {
+                *ssl_mode = SSL_MODE_REQUIRED;
+            }
+            else if (val == "verify_ca")
+            {
+                *ssl_mode = SSL_MODE_VERIFY_CA;
+            }
+            else if (val == "verify_identity")
+            {
+                *ssl_mode = SSL_MODE_VERIFY_IDENTITY;
+            }
+            else
+            {
+                throw soci_error(err);
+            }
         }
         else if (par == "sslca" and not *ssl_ca_p)
         {
@@ -304,13 +335,14 @@ mysql_session_backend::mysql_session_backend(
 {
     string host, user, password, db, unix_socket, ssl_ca, ssl_cert, ssl_key,
         charset;
+    mysql_ssl_mode ssl_mode = SSL_MODE_PREFERRED;
     int port = 0, timeout = 0, local_infile = 0;
     bool host_p, user_p, password_p, db_p, unix_socket_p, port_p,
-        ssl_ca_p, ssl_cert_p, ssl_key_p, local_infile_p, charset_p, timeout_p;
+        ssl_mode_p, ssl_ca_p, ssl_cert_p, ssl_key_p, local_infile_p, charset_p, timeout_p;
     parse_connect_string(parameters.get_connect_string(), &host, &host_p, &user, &user_p,
         &password, &password_p, &db, &db_p,
         &unix_socket, &unix_socket_p, &port, &port_p,
-        &ssl_ca, &ssl_ca_p, &ssl_cert, &ssl_cert_p, &ssl_key, &ssl_key_p,
+        &ssl_mode, &ssl_mode_p, &ssl_ca, &ssl_ca_p, &ssl_cert, &ssl_cert_p, &ssl_key, &ssl_key_p,
         &local_infile, &local_infile_p, &charset, &charset_p,
         &timeout, &timeout_p);
     conn_ = mysql_init(nullptr);
@@ -330,6 +362,10 @@ mysql_session_backend::mysql_session_backend(
         add_and_check_option(MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
         add_and_check_option(MYSQL_OPT_READ_TIMEOUT, &timeout);
         add_and_check_option(MYSQL_OPT_WRITE_TIMEOUT, &timeout);
+    }
+    if (ssl_mode_p)
+    {
+        add_and_check_option(MYSQL_OPT_SSL_MODE, &ssl_mode);
     }
     if (ssl_ca_p)
     {
