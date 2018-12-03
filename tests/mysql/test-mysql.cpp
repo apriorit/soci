@@ -529,18 +529,15 @@ TEST_CASE("MySQL statements after reconnect", "[mysql][connect]")
     int i;
     statement st = (sql.prepare
         << "insert into soci_test(val) values(:val)", use(i));
-    i = 5;
     st.execute(true);
 
     sql.reconnect();
 
-    i = 6;
     st.execute(true);
 
     sql.close();
     sql.reconnect();
 
-    i = 7;
     st.execute(true);
 
     std::vector<int> v(5);

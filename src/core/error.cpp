@@ -111,10 +111,13 @@ soci_error::soci_error(soci_error const& e)
 
 soci_error& soci_error::operator=(soci_error const& e)
 {
-    std::runtime_error::operator=(e);
+    if (this != &e)
+    {
+        std::runtime_error::operator=(e);
 
-    delete info_;
-    info_ = make_safe_copy(e.info_);
+        delete info_;
+        info_ = make_safe_copy(e.info_);
+    }
 
     return *this;
 }

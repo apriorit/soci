@@ -1359,11 +1359,8 @@ TEST_CASE_METHOD(common_tests, "Use type conversion", "[core][use]")
         statement st = (sql.prepare
             << "insert into soci_test(id) values(:id)", use(i));
 
-        i = 5;
         st.execute(true);
-        i = 6;
         st.execute(true);
-        i = 7;
         st.execute(true);
 
         std::vector<int> v(5);
@@ -1522,17 +1519,8 @@ TEST_CASE_METHOD(common_tests, "Multiple use and into", "[core][use][into]")
             << "insert into soci_test(i1, i2, i3) values(:i1, :i2, :i3)",
             use(i1), use(i2), use(i3));
 
-        i1 = 1;
-        i2 = 2;
-        i3 = 3;
         st.execute(true);
-        i1 = 4;
-        i2 = 5;
-        i3 = 6;
         st.execute(true);
-        i1 = 7;
-        i2 = 8;
-        i3 = 9;
         st.execute(true);
 
 #else
@@ -2137,19 +2125,16 @@ TEST_CASE_METHOD(common_tests, "Dynamic row binding 2", "[core][dynamic]")
         statement st = (sql.prepare <<
             "select val from soci_test where id = :id", use(id), into(r));
 
-        id = 2;
         st.execute(true);
         CHECK(r.size() == 1);
         CHECK(r.get_properties(0).get_data_type() == dt_integer);
         CHECK(r.get<int>(0) == 20);
 
-        id = 3;
         st.execute(true);
         CHECK(r.size() == 1);
         CHECK(r.get_properties(0).get_data_type() == dt_integer);
         CHECK(r.get<int>(0) == 30);
 
-        id = 1;
         st.execute(true);
         CHECK(r.size() == 1);
         CHECK(r.get_properties(0).get_data_type() == dt_integer);
@@ -4037,7 +4022,6 @@ TEST_CASE_METHOD(common_tests, "Insert error", "[core][insert][exception]")
             for (char const* const* n = names; n; ++n, ++a)
             {
                 name = *n;
-                age = *a;
                 st.execute(true);
             }
         }
